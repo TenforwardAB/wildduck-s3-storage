@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @reusable-email/wildduck-s3-storage
+ * @tenforwardab/wildduck-s3-storage
  *
  * S3/R2-compatible attachment storage for WildDuck.
  * Drop-in replacement for the built-in GridFS storage.
@@ -17,10 +17,10 @@
  *   case 's3': {
  *     const mode = (options.options && options.options.mode) || 's3';
  *     if (mode === 'dual') {
- *       const DualStorage = require('@reusable-email/wildduck-s3-storage/lib/dual-storage');
+ *       const DualStorage = require('@tenforwardab/wildduck-s3-storage/lib/dual-storage');
  *       this.storage = new DualStorage(options);
  *     } else {
- *       const S3Storage = require('@reusable-email/wildduck-s3-storage/lib/s3-storage');
+ *       const S3Storage = require('@tenforwardab/wildduck-s3-storage/lib/s3-storage');
  *       this.storage = new S3Storage(options);
  *     }
  *     break;

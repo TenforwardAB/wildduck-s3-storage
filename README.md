@@ -1,5 +1,22 @@
 # wildduck-s3-storage
 
+> **Tenforward AB fork** of [Reusable-email/wildduck-s3-storage](https://github.com/Reusable-email/wildduck-s3-storage),
+> published as `@tenforwardab/wildduck-s3-storage`. Changes over upstream:
+>
+> - **Partial fetches are byte-identical to GridFS.** IMAP `BODY[n]<start.len>`
+>   offsets address the base64 output, but decoded attachments hold binary in S3.
+>   Reads now go through the same `base64Offset()` mapping WildDuck's GridFS
+>   backend uses (binary window + encoder `skipStartBytes` / `startPadding` /
+>   limit), for both the S3 path and the dual-mode GridFS fallback. Previously
+>   the base64 offsets were sent as a raw byte `Range`, which corrupted partial
+>   downloads in clients that fetch attachments in chunks (Apple Mail, mobile).
+> - **End-offset fix.** WildDuck's `base64-offset.js` reads one byte too few when
+>   the request starts three characters into a base64 group; the vendored copy
+>   in `lib/base64-offset.js` covers the skipped characters. (Reported upstream.)
+> - Requests at or past EOF return an empty stream instead of an S3 `416`.
+> - `npm test` runs a randomized byte-identity suite against `libbase64` folding.
+
+
 S3/R2-compatible object storage backend for [WildDuck](https://github.com/zone-eu/wildduck) attachment storage. Drop-in replacement for the built-in GridFS backend.
 
 Stores attachment blobs in any S3-compatible object store (Cloudflare R2, AWS S3, MinIO, etc.) while keeping deduplication metadata in MongoDB. Supports zero-downtime migration from existing GridFS installations.
@@ -25,7 +42,7 @@ WildDuck stores email attachments in MongoDB GridFS by default. This works but h
 ## Installation
 
 ```bash
-npm install @reusable-email/wildduck-s3-storage
+npm install @tenforwardab/wildduck-s3-storage
 ```
 
 ## Quick Start
@@ -39,10 +56,10 @@ switch (type) {
     case 's3': {
         const mode = (options.options && options.options.mode) || 's3';
         if (mode === 'dual') {
-            const DualStorage = require('@reusable-email/wildduck-s3-storage/lib/dual-storage');
+            const DualStorage = require('@tenforwardab/wildduck-s3-storage/lib/dual-storage');
             this.storage = new DualStorage(options);
         } else {
-            const S3Storage = require('@reusable-email/wildduck-s3-storage/lib/s3-storage');
+            const S3Storage = require('@tenforwardab/wildduck-s3-storage/lib/s3-storage');
             this.storage = new S3Storage(options);
         }
         break;
@@ -84,7 +101,7 @@ Restart WildDuck. In dual mode:
 ### 4. Migrate existing data
 
 ```bash
-npx @reusable-email/wildduck-s3-storage migrate \
+npx @tenforwardab/wildduck-s3-storage migrate \
   --mongo-url "mongodb://user:pass@host:27017/wildduck" \
   --s3-bucket wildduck-attachments \
   --s3-endpoint "https://<account-id>.r2.cloudflarestorage.com" \

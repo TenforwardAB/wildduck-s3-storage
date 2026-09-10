@@ -5,7 +5,7 @@
  * CLI tool to migrate WildDuck attachments from GridFS to S3/R2.
  *
  * Usage:
- *   npx @reusable-email/wildduck-s3-storage migrate \
+ *   npx @tenforwardab/wildduck-s3-storage migrate \
  *     --mongo-url mongodb://... \
  *     --s3-bucket wildduck-attachments \
  *     --s3-endpoint https://xxx.r2.cloudflarestorage.com \
