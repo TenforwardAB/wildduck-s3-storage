@@ -65,3 +65,8 @@ test('s3: a synchronous throw from the client becomes a stream error', async () 
     const storage = makeStorage(S3Storage, () => { throw new Error('sync boom'); });
     await assert.rejects(collect(storage.createReadStream(Buffer.alloc(32, 1), { length: 10, metadata: { decoded: false } }, {})), /sync boom/);
 });
+
+test('migration module loads and exposes migrateAttachments', () => {
+    const { migrateAttachments } = require('../lib/migrate');
+    assert.strictEqual(typeof migrateAttachments, 'function');
+});
