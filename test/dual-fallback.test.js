@@ -60,3 +60,8 @@ test('s3 keys are the hex digest for Buffer, BSON Binary and hex string ids', ()
     assert.strictEqual(storage._s3Key({ buffer: buf, _bsontype: 'Binary' }), `${hex.slice(0, 2)}/${hex}`);
     assert.strictEqual(storage._s3Key(hex), `${hex.slice(0, 2)}/${hex}`);
 });
+
+test('s3: a synchronous throw from the client becomes a stream error', async () => {
+    const storage = makeStorage(S3Storage, () => { throw new Error('sync boom'); });
+    await assert.rejects(collect(storage.createReadStream(Buffer.alloc(32, 1), { length: 10, metadata: { decoded: false } }, {})), /sync boom/);
+});
