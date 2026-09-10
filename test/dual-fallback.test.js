@@ -70,3 +70,17 @@ test('migration module loads and exposes migrateAttachments', () => {
     const { migrateAttachments } = require('../lib/migrate');
     assert.strictEqual(typeof migrateAttachments, 'function');
 });
+
+test('s3: create stores the digest bytes as _id, like GridFS', async () => {
+    const inserted = [];
+    const storage = makeStorage(S3Storage, () => Promise.resolve({}));
+    storage.filesCollection = {
+        findOneAndUpdate: () => Promise.resolve({ value: null }),
+        insertOne: doc => { inserted.push(doc); return Promise.resolve(); }
+    };
+    const hex = 'ab'.repeat(32);
+    await new Promise((resolve, reject) => storage.create({ body: Buffer.from('hello'), transferEncoding: '7bit', magic: 1 }, hex, err => (err ? reject(err) : resolve())));
+    assert.ok(Buffer.isBuffer(inserted[0]._id));
+    assert.strictEqual(inserted[0]._id.toString('hex'), hex);
+    assert.strictEqual(inserted[0].metadata.esize, 5);
+});
